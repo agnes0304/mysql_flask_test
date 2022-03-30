@@ -21,6 +21,14 @@ dataBase = mysql.connector.connect(
 
 
 # CREATE
+# 사용자 입력(request body)
+# {
+# 	"name": ,
+# 	"age": ,
+# 	"sex": ,
+# 	"email": ,
+# 	"pw": 
+# }
 @app.route("/student", methods=["POST"])
 def add_student():
   body = request.get_json()
@@ -39,10 +47,9 @@ def add_student():
   val = [body["name"]]
 
   cursor.execute(sql, val)
-  for (name) in cursor:
+  for name in cursor:
     print(name)
 
-  dataBase.close()
 
   return {'test': 10}
 
@@ -51,12 +58,35 @@ def add_student():
 # 전체 학생 조회
 @app.route("/student", methods=["GET"])
 def student():
-  pass
+  cursor = dataBase.cursor()
+
+  query = ("SELECT name, age, sex, email, nickname, bio FROM student")
+
+  cursor.execute(query)
+
+  result = cursor.fetchall()
+
+  for name in cursor:
+    result.append(name)
+
+  return str(result)
+
 
 # 학생 이름으로 조회
 @app.route("/student/<name>", methods=["GET"])
 def get_student_by_name(name):
-  pass
+  cursor = dataBase.cursor()
+
+  sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
+  val = [name]
+  
+  cursor.execute(sql, val)
+
+  result = cursor.fetchall()
+  for name in cursor:
+    result = name
+
+  return str(result)
 
 
 
@@ -75,9 +105,41 @@ def update_student_by_code(code):
 
 # DELETE
 # 이름, pw입력 (pw는 json형태로 받기)
+# 사용자 입력(request body)
+# {
+# 	"name": ,
+# 	"pw": 
+# }
 @app.route("/student/<name>", methods=["DELETE"])
 def delete_student_by_name(name):
-  pass
+  cursor = dataBase.cursor()
+
+  sql = "SELECT pw from student WHERE name = %s"
+  val = [name]
+
+  cursor.execute(sql, val)
+
+  result = cursor.fetchall()
+  for name in cursor:
+    result.append(name)
+  
+  print(result[0])
+
+  body = request.get_json()
+  hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
+  
+  if result[0] == hashedPW:
+    sql = "DELETE FROM student WHERE name = (%s)"
+    val = [name]
+    cursor.execute(sql, val)
+
+    dataBase.commit()
+
+    return "DELETE!"
+
+  else: 
+    return "NO!", 400
+
 
 # code 알고 있다고 가정
 @app.route("/student/<code>", methods=["DELETE"])
@@ -86,3 +148,4 @@ def delete_student_by_code(code):
 
 
 
+# dataBase.close()
