@@ -1,6 +1,9 @@
+from encodings import utf_8
+import hashlib
+import json
+from itsdangerous import NoneAlgorithm
 import mysql.connector
-
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -9,22 +12,39 @@ def WELCOME():
     return "<p>WELCOME!</p>"
 
 
-dataBase = mysql.connector.connect(
-  host ="localhost",
-  user ="root",
-  passwd ="gg04236@@",
-  database ="SNU"
-)
-
-cursor = dataBase.cursor()
-
-
 
 # CREATE
 @app.route("/student", methods=["POST"])
 def add_student():
-  pass
+  body = request.get_json()
+  code = hashlib.md5(bytes(body["email"], 'utf-8')).hexdigest()
+  pw = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
+  
+  sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
+  val = (body["name"], body["age"], body["sex"], body["email"], pw, code)
 
+  dataBase = mysql.connector.connect(
+    host ="localhost",
+    user ="root",
+    passwd ="gg04236@@",
+    database ="SNU"
+  )
+
+  cursor = dataBase.cursor()
+
+  cursor.execute(sql, val)
+  dataBase.commit()
+
+  sql = "SELECT * FROM student WHERE name = (%s)"
+  val = [body["name"]]
+
+  cursor.execute(sql, val)
+  for (name) in cursor:
+    print(name)
+
+  dataBase.close()
+
+  return {'test': 10}
 
 
 # READ
@@ -66,13 +86,3 @@ def delete_student_by_code(code):
 
 
 
-
-query = ("SELECT * FROM student WHERE name = 'B'")
-cursor.execute(query)
-
-for (name) in cursor:
-    print("{}".format(name))
-
-cursor.close()
-
-dataBase.close()
