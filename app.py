@@ -12,6 +12,13 @@ def WELCOME():
     return "<p>WELCOME!</p>"
 
 
+dataBase = mysql.connector.connect(
+  host ="localhost",
+  user ="root",
+  passwd ="gg04236@@",
+  database ="SNU"
+)
+
 
 # CREATE
 @app.route("/student", methods=["POST"])
@@ -22,13 +29,6 @@ def add_student():
   
   sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
   val = (body["name"], body["age"], body["sex"], body["email"], pw, code)
-
-  dataBase = mysql.connector.connect(
-    host ="localhost",
-    user ="root",
-    passwd ="gg04236@@",
-    database ="SNU"
-  )
 
   cursor = dataBase.cursor()
 
