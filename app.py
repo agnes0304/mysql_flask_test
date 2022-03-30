@@ -20,6 +20,35 @@ dataBase = mysql.connector.connect(
 )
 
 
+# pw 검증
+# 사용자 입력(request body)
+# {
+#   "name":,
+#   "pw":
+# }
+def checking_pw(name):
+  cursor = dataBase.cursor()
+
+  sql = "SELECT pw from student WHERE name = %s"
+  val = [name]
+
+  cursor.execute(sql, val)
+
+  result = cursor.fetchall()
+  for name in cursor:
+    result.append(name)
+  
+  print(result[0][0])
+
+  body = request.get_json()
+  hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
+  
+  if result[0][0] == hashedPW:
+    return True
+  else: 
+    return False
+
+
 # CREATE
 # 사용자 입력(request body)
 # {
@@ -92,14 +121,38 @@ def get_student_by_name(name):
 
 # UPDATE
 # 이름, pw입력 (pw는 json 형태로 받기)
+# 사용자 입력(request body)
+# {
+# 	"name": ,
+#   "nickname": ,
+#   "bio": ,
+# 	"pw": 
+# }
 @app.route("/student/<name>", methods=["PUT"])
 def update_student_by_name(name):
-  pass
+  body = request.get_json()
+  cursor = dataBase.cursor()
 
-# code 알고 있다고 가정
-@app.route("/student/<code>", methods=["PUT"])
-def update_student_by_code(code):
-  pass
+  if checking_pw(name):
+    sql = "INSERT INTO student (nickname, bio) VALUES (%s, %s)"
+    val = (body["nickname"], body["bio"])
+    cursor.execute(sql, val)
+    dataBase.commit()
+    return "DONE"
+    # sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
+    # val = [name]
+  
+    # cursor.execute(sql, val)
+
+    # result = cursor.fetchall()
+    # for name in cursor:
+    #   result = name
+
+    # return str(result)
+
+  else: 
+    return "Wrong PW", 400
+
 
 
 
@@ -114,21 +167,21 @@ def update_student_by_code(code):
 def delete_student_by_name(name):
   cursor = dataBase.cursor()
 
-  sql = "SELECT pw from student WHERE name = %s"
-  val = [name]
+  # sql = "SELECT pw from student WHERE name = %s"
+  # val = [name]
 
-  cursor.execute(sql, val)
+  # cursor.execute(sql, val)
 
-  result = cursor.fetchall()
-  for name in cursor:
-    result.append(name)
+  # result = cursor.fetchall()
+  # for name in cursor:
+  #   result.append(name)
   
-  print(result[0])
+  # print(result[0][0])
 
-  body = request.get_json()
-  hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
+  # body = request.get_json()
+  # hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
   
-  if result[0] == hashedPW:
+  if checking_pw(name):
     sql = "DELETE FROM student WHERE name = (%s)"
     val = [name]
     cursor.execute(sql, val)
@@ -139,13 +192,6 @@ def delete_student_by_name(name):
 
   else: 
     return "NO!", 400
-
-
-# code 알고 있다고 가정
-@app.route("/student/<code>", methods=["DELETE"])
-def delete_student_by_code(code):
-  pass
-
 
 
 # dataBase.close()
