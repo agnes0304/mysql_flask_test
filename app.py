@@ -1,10 +1,11 @@
 from encodings import utf_8
 import hashlib
 import json
+from os import curdir
 from sqlite3 import Cursor
 from itsdangerous import NoneAlgorithm
 import mysql.connector
-from flask import Flask, request
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -71,6 +72,20 @@ def isnameExist(name):
 # print(isnameExist('jiwoo'))
 
 
+# json으로 데이터 전달
+# jsonify_02 -> [["{}""], ["{}"], ["{}""]] 이런식으로 나오는데 header에 content-type은 json이라고 되어있음.
+def returnJson(name):
+  cursor = dataBase.cursor()
+  sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student WHERE name = %s"
+  val = [name]
+  cursor.execute(sql, val)
+
+  result = cursor.fetchall()
+  for row in cursor:
+    result.append(row)
+
+  return jsonify(result)
+
 
 # CREATE
 # 사용자 입력(request body)
@@ -95,16 +110,20 @@ def add_student():
   cursor.execute(sql, val)
   dataBase.commit()
 
-  sql = "SELECT * FROM student WHERE name = (%s)"
-  val = [body["name"]]
+  # jsonify_01
+  # json 오기는 하나, 개선필요 -> 1차 개선 완료(아래 jsonify_02)
+  # sql = "SELECT JSON_OBJECT ('name', %s, 'age', %s, 'sex', %s, 'email', %s, 'code', %s)"
+  # val = [result[0][0], result[0][1], result[0][2], result[0][3], result[0][5]]
+  # cursor.execute(sql, val)
+  # result = cursor.fetchall()
+  # for row in cursor:
+  #   result.append(row)
+  # return jsonify(result[0])
 
-  cursor.execute(sql, val)
-  for name in cursor:
-    print(name)
-
-
-  return "DONE"
-
+  # jsonify_02 -> returnJson func
+  result = returnJson(body["name"])
+  
+  return result
 
 
 # READ
@@ -113,41 +132,30 @@ def add_student():
 def student():
   cursor = dataBase.cursor()
 
-  query = ("SELECT name, age, sex, email, nickname, bio FROM student")
-
+  query = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student"
   cursor.execute(query)
 
   result = cursor.fetchall()
+  for row in cursor:
+    result.append(row)
+  print(result)
 
-  for name in cursor:
-    result.append(name)
-
-  return str(result)
+  return jsonify(result)
 
 
 # 학생 이름으로 조회
 @app.route("/student/<name>", methods=["GET"])
 def get_student_by_name(name):
   if isnameExist(name):
-    cursor = dataBase.cursor()
-
-    sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
-    val = [name]
-    
-    cursor.execute(sql, val)
-
-    result = cursor.fetchall()
-    for name in cursor:
-      result = name
-
-    return str(result)
+    result = returnJson(name)
+    return result
   
   else:
     return "Wrong Name", 400
 
 
 
-# UPDATE
+# UPDATE : error
 # 이름, pw입력 (pw는 json 형태로 받기)
 # 사용자 입력(request body)
 # {
@@ -168,7 +176,7 @@ def update_student_by_name(name):
       cursor.execute(sql, val)
       dataBase.commit()
 
-      sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
+      sql = "SELECT name, age, sex, email, code, nickname, bio FROM student WHERE name = %s"
       val = [name]
     
       cursor.execute(sql, val)
@@ -198,21 +206,6 @@ def update_student_by_name(name):
 def delete_student_by_name(name):
   if isnameExist(name):
     cursor = dataBase.cursor()
-
-    # sql = "SELECT pw from student WHERE name = %s"
-    # val = [name]
-
-    # cursor.execute(sql, val)
-
-    # result = cursor.fetchall()
-    # for name in cursor:
-    #   result.append(name)
-    
-    # print(result[0][0])
-
-    # body = request.get_json()
-    # hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
-    
     if checking_pw(name):
       sql = "DELETE FROM student WHERE name = (%s)"
       val = [name]
