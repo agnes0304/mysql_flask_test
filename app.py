@@ -1,6 +1,7 @@
 from encodings import utf_8
 import hashlib
 import json
+from sqlite3 import Cursor
 from itsdangerous import NoneAlgorithm
 import mysql.connector
 from flask import Flask, request
@@ -9,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def WELCOME():
-    return "<p>WELCOME!</p>"
+    return "<p>WELCOME! SNU DB</p>"
 
 
 dataBase = mysql.connector.connect(
@@ -38,7 +39,7 @@ def checking_pw(name):
   for name in cursor:
     result.append(name)
   
-  print(result[0][0])
+  # print(result[0][0])
 
   body = request.get_json()
   hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
@@ -47,6 +48,28 @@ def checking_pw(name):
     return True
   else: 
     return False
+
+
+# name 존재여부 검증
+def isnameExist(name):
+  cursor = dataBase.cursor()
+  
+  sql = ("SELECT EXISTS(SELECT * FROM student where name = %s)")
+  val = [name]
+
+  cursor.execute(sql, val)
+
+  result = cursor.fetchall()
+  for row in cursor:
+    result.append(row)
+  
+  if result[0][0] >= 1:
+    return True
+  else:
+    return False
+
+# print(isnameExist('jiwoo'))
+
 
 
 # CREATE
@@ -80,7 +103,8 @@ def add_student():
     print(name)
 
 
-  return {'test': 10}
+  return "DONE"
+
 
 
 # READ
@@ -104,18 +128,22 @@ def student():
 # 학생 이름으로 조회
 @app.route("/student/<name>", methods=["GET"])
 def get_student_by_name(name):
-  cursor = dataBase.cursor()
+  if isnameExist(name):
+    cursor = dataBase.cursor()
 
-  sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
-  val = [name]
+    sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
+    val = [name]
+    
+    cursor.execute(sql, val)
+
+    result = cursor.fetchall()
+    for name in cursor:
+      result = name
+
+    return str(result)
   
-  cursor.execute(sql, val)
-
-  result = cursor.fetchall()
-  for name in cursor:
-    result = name
-
-  return str(result)
+  else:
+    return "Wrong Name", 400
 
 
 
@@ -130,29 +158,32 @@ def get_student_by_name(name):
 # }
 @app.route("/student/<name>", methods=["PUT"])
 def update_student_by_name(name):
-  body = request.get_json()
-  cursor = dataBase.cursor()
+  if isnameExist(name):
+    body = request.get_json()
+    cursor = dataBase.cursor()
 
-  if checking_pw(name):
-    sql = "INSERT INTO student (nickname, bio) VALUES (%s, %s)"
-    val = (body["nickname"], body["bio"])
-    cursor.execute(sql, val)
-    dataBase.commit()
-    return "DONE"
-    # sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
-    # val = [name]
+    if checking_pw(name):
+      sql = "INSERT INTO student (nickname, bio) VALUES (%s, %s)"
+      val = (body["nickname"], body["bio"])
+      cursor.execute(sql, val)
+      dataBase.commit()
+
+      sql = "SELECT name, age, sex, email, nickname, bio FROM student WHERE name = %s"
+      val = [name]
+    
+      cursor.execute(sql, val)
+
+      result = cursor.fetchall()
+      for name in cursor:
+        result = name
+
+      return str(result)
+
+    else: 
+      return "Wrong PW", 400
   
-    # cursor.execute(sql, val)
-
-    # result = cursor.fetchall()
-    # for name in cursor:
-    #   result = name
-
-    # return str(result)
-
   else: 
-    return "Wrong PW", 400
-
+    return "Wrong Name", 400
 
 
 
@@ -165,33 +196,36 @@ def update_student_by_name(name):
 # }
 @app.route("/student/<name>", methods=["DELETE"])
 def delete_student_by_name(name):
-  cursor = dataBase.cursor()
+  if isnameExist(name):
+    cursor = dataBase.cursor()
 
-  # sql = "SELECT pw from student WHERE name = %s"
-  # val = [name]
+    # sql = "SELECT pw from student WHERE name = %s"
+    # val = [name]
 
-  # cursor.execute(sql, val)
+    # cursor.execute(sql, val)
 
-  # result = cursor.fetchall()
-  # for name in cursor:
-  #   result.append(name)
-  
-  # print(result[0][0])
+    # result = cursor.fetchall()
+    # for name in cursor:
+    #   result.append(name)
+    
+    # print(result[0][0])
 
-  # body = request.get_json()
-  # hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
-  
-  if checking_pw(name):
-    sql = "DELETE FROM student WHERE name = (%s)"
-    val = [name]
-    cursor.execute(sql, val)
+    # body = request.get_json()
+    # hashedPW = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
+    
+    if checking_pw(name):
+      sql = "DELETE FROM student WHERE name = (%s)"
+      val = [name]
+      cursor.execute(sql, val)
 
-    dataBase.commit()
+      dataBase.commit()
 
-    return "DELETE!"
+      return "DELETE!"
+
+    else: 
+      return "Wrong PW", 400
 
   else: 
-    return "NO!", 400
-
+    return "Wrong Name", 400
 
 # dataBase.close()
