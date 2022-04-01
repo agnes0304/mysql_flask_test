@@ -74,16 +74,26 @@ def isnameExist(name):
 
 # json으로 데이터 전달
 # jsonify_02 -> [["{}""], ["{}"], ["{}""]] 이런식으로 나오는데 header에 content-type은 json이라고 되어있음.
+# def returnJson(name):
+#   cursor = dataBase.cursor()
+#   sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student WHERE name = %s"
+#   val = [name]
+#   cursor.execute(sql, val)
+
+#   result = cursor.fetchall()
+#   for row in cursor:
+#     result.append(row)
+
+#   return jsonify(result)
+
+# jsonify_03 
 def returnJson(name):
   cursor = dataBase.cursor()
   sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student WHERE name = %s"
   val = [name]
   cursor.execute(sql, val)
-
-  result = cursor.fetchall()
-  for row in cursor:
-    result.append(row)
-
+  data = cursor.fetchall()
+  result = json.dumps(data)
   return jsonify(result)
 
 
