@@ -165,7 +165,7 @@ def get_student_by_name(name):
         return "Wrong Name", 400
 
 
-# UPDATE : error
+# UPDATE
 # 이름, pw입력 (pw는 json 형태로 받기)
 # 사용자 입력(request body)
 # {
