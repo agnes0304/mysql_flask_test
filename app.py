@@ -1,4 +1,5 @@
 from ast import dump
+from crypt import methods
 from encodings import utf_8
 import hashlib
 import json
@@ -7,14 +8,9 @@ from sqlite3 import Cursor
 from tabnanny import check
 from itsdangerous import NoneAlgorithm
 import mysql.connector
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, redirect, request, render_template, url_for
 
 app = Flask(__name__)
-
-
-@app.route("/")
-def signupPage():
-    return render_template('index.html')
 
 
 dataBase = mysql.connector.connect(
@@ -98,6 +94,13 @@ def returnJson(name):
     return jsonify(json.loads(data))
 
 
+@app.route("/", methods=["GET", "POST"])
+def signupPage():
+    if request.method == "POST":
+        return redirect(url_for('testpost'))
+    return render_template('index.html')
+
+
 # CREATE
 # 사용자 입력(request body)
 # {
@@ -135,6 +138,39 @@ def add_student():
     result = returnJson(body["name"])
 
     return result
+
+
+# html-flask-mysql
+@app.route("/test", methods=["POST", "GET"])
+# @app.route("/test")
+def testpost():
+    name_value = request.form['name_form']
+    age_value = request.form['age_form']
+    sex_value = request.form['sex_form']
+    email_value = request.form['email_form']
+    pw_value = request.form['pw_form']
+    code = hashlib.md5(bytes(email_value, 'utf-8')).hexdigest()
+    pw = hashlib.md5(bytes(pw_value+"jiwoo", 'utf_8')).hexdigest()
+
+    sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
+    val = (name_value, age_value, sex_value, email_value, pw, code)
+
+    cursor = dataBase.cursor()
+
+    cursor.execute(sql, val)
+    dataBase.commit()
+
+    sql = ("SELECT * from student WHERE name = %s")
+    val = [name_value]
+    cursor = dataBase.cursor()
+    result = cursor.execute(sql, val)
+
+    return result
+
+    # result = returnJson(name_value)
+
+    # return result
+
 
 
 # READ
