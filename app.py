@@ -141,43 +141,46 @@ def add_student():
 
 
 # html-flask-mysql
-@app.route("/test", methods=["POST"])
+@app.route("/test", methods=["POST", "GET"])
 # @app.route("/test")
 def testpost():
-    # print(request.form.get('new_name', False))
-    print(request.form['new_name'])
-    print(request.form['new_age'])
-    print(request.form['new_email'])
-    print(request.form['new_sex'])
-    print(request.form['new_pw'])
+    if request.method == "POST":
+        # print(request.form.get('new_name', False))
+        print(request.form['new_name'])
+        print(request.form['new_age'])
+        print(request.form['new_email'])
+        print(request.form['new_sex'])
+        print(request.form['new_pw'])
 
-    
-    name_value = request.form['new_name']
-    age_value = request.form['new_age']
-    sex_value = request.form['new_sex']
-    email_value = request.form['new_email']
-    pw_value = request.form['new_pw']
-    
+        
+        name_value = request.form['new_name']
+        age_value = request.form['new_age']
+        sex_value = request.form['new_sex']
+        email_value = request.form['new_email']
+        pw_value = request.form['new_pw']
+        
 
-    code = hashlib.md5(bytes(email_value, 'utf-8')).hexdigest()
-    pw = hashlib.md5(bytes(pw_value+"jiwoo", 'utf_8')).hexdigest()
+        code = hashlib.md5(bytes(email_value, 'utf-8')).hexdigest()
+        pw = hashlib.md5(bytes(pw_value+"jiwoo", 'utf_8')).hexdigest()
 
-    cursor = dataBase.cursor()
-    sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)" % (name_value, age_value, sex_value, email_value, pw, code)
+        cursor = dataBase.cursor()
+        sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)" % (name_value, age_value, sex_value, email_value, pw, code)
 
-    cursor.execute(sql)
-    dataBase.commit()
+        cursor.execute(sql)
+        dataBase.commit()
 
-    # sql = "SELECT * from student WHERE name = %s" % (name_value)
-    # cursor = dataBase.cursor()
-    # result = cursor.execute(sql)
+        # sql = "SELECT * from student WHERE name = %s" % (name_value)
+        # cursor = dataBase.cursor()
+        # result = cursor.execute(sql)
 
-    # return result
-    return render_template('signup.html')
+        # return result
+        return render_template('signup.html')
+    else: 
+        return "X"
 
-    # result = returnJson(name_value)
+        # result = returnJson(name_value)
 
-    # return result
+        # return result
 
 
 
