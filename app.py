@@ -144,6 +144,7 @@ def add_student():
 @app.route("/test", methods=["POST", "GET"])
 # @app.route("/test")
 def testpost():
+    # print(request.form.get('new_name', False))
     print(request.form['new_name'])
     print(request.form['new_age'])
     print(request.form['new_email'])
