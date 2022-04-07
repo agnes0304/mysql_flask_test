@@ -98,7 +98,7 @@ def returnJson(name):
 def signupPage():
     if request.method == "POST":
         return redirect(url_for('testpost'))
-    return render_template('index2.html')
+    return render_template('signup.html')
 
 
 # CREATE
@@ -141,7 +141,7 @@ def add_student():
 
 
 # html-flask-mysql
-@app.route("/test", methods=["POST", "GET"])
+@app.route("/test", methods=["POST"])
 # @app.route("/test")
 def testpost():
     # print(request.form.get('new_name', False))
@@ -173,7 +173,7 @@ def testpost():
     # result = cursor.execute(sql)
 
     # return result
-    return render_template('index2.html')
+    return render_template('signup.html')
 
     # result = returnJson(name_value)
 
