@@ -98,7 +98,7 @@ def returnJson(name):
 def signupPage():
     if request.method == "POST":
         return redirect(url_for('testpost'))
-    return render_template('index.html')
+    return render_template('index2.html')
 
 
 # CREATE
@@ -144,28 +144,35 @@ def add_student():
 @app.route("/test", methods=["POST", "GET"])
 # @app.route("/test")
 def testpost():
-    name_value = request.form['name_form']
-    age_value = request.form['age_form']
-    sex_value = request.form['sex_form']
-    email_value = request.form['email_form']
-    pw_value = request.form['pw_form']
+    print(request.form['new_name'])
+    print(request.form['new_age'])
+    print(request.form['new_email'])
+    print(request.form['new_sex'])
+    print(request.form['new_pw'])
+
+    
+    name_value = request.form['new_name']
+    age_value = request.form['new_age']
+    sex_value = request.form['new_sex']
+    email_value = request.form['new_email']
+    pw_value = request.form['new_pw']
+    
+
     code = hashlib.md5(bytes(email_value, 'utf-8')).hexdigest()
     pw = hashlib.md5(bytes(pw_value+"jiwoo", 'utf_8')).hexdigest()
 
-    sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
-    val = (name_value, age_value, sex_value, email_value, pw, code)
-
     cursor = dataBase.cursor()
+    sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)" % (name_value, age_value, sex_value, email_value, pw, code)
 
-    cursor.execute(sql, val)
+    cursor.execute(sql)
     dataBase.commit()
 
-    sql = ("SELECT * from student WHERE name = %s")
-    val = [name_value]
-    cursor = dataBase.cursor()
-    result = cursor.execute(sql, val)
+    # sql = "SELECT * from student WHERE name = %s" % (name_value)
+    # cursor = dataBase.cursor()
+    # result = cursor.execute(sql)
 
-    return result
+    # return result
+    return render_template('index2.html')
 
     # result = returnJson(name_value)
 
