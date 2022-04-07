@@ -7,40 +7,33 @@
     <title>Sign_up_page</title>
 </head>
 
+<!--request message_POST-->
 <body>
     <h1>SIGN UP FORM</h1>
-    <form method="post">
+    <form action =" ", method="post">
         <div>
             <label for="name">Enter your name: </label>
-            <input type="text" name="name" id="name" required>
+            <input type="text" name="name_form" id="name" required>
         </div>
         <div>
             <label for="age">Enter your age: </label>
-            <input type="number" name="age" id="age" required>
+            <input type="number" name="age_form" id="age" required>
         </div>
-        <label for="sex">Enter your sex: </label>
         <div>
-            <select class="form-select" aria-label="Default select example">
-                <option value="1">Male</option>
-                <option value="2">Female</option>
-                <option value="3">Others</option>
-            </select>
+            <label for="sex">Enter your sex: </label>
+            <input type=text" name="sex_form" id="sex" required>
         </div>
-        <label for="exampleFormControlInput1" class="form-label">Email address</label>
-        <div class="mb-3">
-            <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+        <div>
+            <label for="email">Enter your email: </label>
+            <input type="text" name="email_form" id="email" required>
         </div>
-        <label for="inputPassword5" class="form-label">Password</label>
-        <input type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
-        <div id="passwordHelpBlock" class="form-text">
-            Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces,
-            special characters, or emoji.
+        <div>
+            <label for="pw">Enter your password: </label>
+            <input type="text" name="pw_form" id="pw" required>
         </div>
-
-        <input type="submit" value="DONE!">
-
-
-
+        <div>
+            <button type="submit", value="Button">submit!</button>
+        </div>
     </form>
 </body>
 
