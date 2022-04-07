@@ -7,14 +7,14 @@ from sqlite3 import Cursor
 from tabnanny import check
 from itsdangerous import NoneAlgorithm
 import mysql.connector
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def WELCOME():
-    return "<p>WELCOME! SNU DB</p>"
+def signupPage():
+    return render_template('index.html')
 
 
 dataBase = mysql.connector.connect(
