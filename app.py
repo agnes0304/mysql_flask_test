@@ -30,7 +30,7 @@ dataBase = mysql.connector.connect(
 def checking_pw(name):
     cursor = dataBase.cursor()
 
-    sql = "SELECT pw from student WHERE name = %s"
+    sql = "SELECT pw from students WHERE name = %s"
     val = [name]
 
     cursor.execute(sql, val)
@@ -51,7 +51,7 @@ def checking_pw(name):
 def isnameExist(name):
     cursor = dataBase.cursor()
 
-    sql = ("SELECT EXISTS(SELECT * FROM student where name = %s)")
+    sql = ("SELECT EXISTS(SELECT * FROM students where name = %s)")
     val = [name]
 
     cursor.execute(sql, val)
@@ -71,7 +71,7 @@ def isnameExist(name):
 # jsonify_02 -> [["{}""], ["{}"], ["{}""]] 이런식으로 나오는데 header에 content-type은 json이라고 되어있음.
 # def returnJson(name):
 #   cursor = dataBase.cursor()
-#   sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student WHERE name = %s"
+#   sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM students WHERE name = %s"
 #   val = [name]
 #   cursor.execute(sql, val)
 
@@ -84,7 +84,7 @@ def isnameExist(name):
 # jsonify_03
 def returnJson(name):
     cursor = dataBase.cursor()
-    sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student WHERE name = %s"
+    sql = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM students WHERE name = %s"
     val = [name]
     cursor.execute(sql, val)
     result = cursor.fetchone()
@@ -116,7 +116,7 @@ def add_student():
     code = hashlib.md5(bytes(body["email"], 'utf-8')).hexdigest()
     pw = hashlib.md5(bytes(body["pw"]+"jiwoo", 'utf_8')).hexdigest()
 
-    sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO students (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)"
     val = (body["name"], body["age"], body["sex"], body["email"], pw, code)
 
     cursor = dataBase.cursor()
@@ -164,12 +164,12 @@ def testpost():
         pw = hashlib.md5(bytes(pw_value+"jiwoo", 'utf_8')).hexdigest()
 
         cursor = dataBase.cursor()
-        sql = "INSERT INTO student (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)" % (name_value, age_value, sex_value, email_value, pw, code)
+        sql = "INSERT INTO students (name, age, sex, email, pw, code) VALUES(%s, %s, %s, %s, %s, %s)" % (name_value, age_value, sex_value, email_value, pw, code)
 
         cursor.execute(sql)
         dataBase.commit()
 
-        # sql = "SELECT * from student WHERE name = %s" % (name_value)
+        # sql = "SELECT * from students WHERE name = %s" % (name_value)
         # cursor = dataBase.cursor()
         # result = cursor.execute(sql)
 
@@ -190,7 +190,7 @@ def testpost():
 def student():
     cursor = dataBase.cursor()
 
-    query = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM student"
+    query = "SELECT JSON_OBJECT ('name', name, 'age', age, 'sex', sex, 'email', email, 'code', code, 'nickname', nickname, 'bio', bio) FROM students"
     cursor.execute(query)
 
     result = cursor.fetchall()
@@ -228,7 +228,7 @@ def update_student_by_name(name):
         cursor = dataBase.cursor()
         
         if checking_pw(name):
-            sql = "UPDATE student SET nickname = %s, bio = %s WHERE name = %s"
+            sql = "UPDATE students SET nickname = %s, bio = %s WHERE name = %s"
             val = (body["nickname"], body["bio"], body["name"])
             cursor.execute(sql, val)
             dataBase.commit()
@@ -255,7 +255,7 @@ def delete_student_by_name(name):
     if isnameExist(name):
         cursor = dataBase.cursor()
         if checking_pw(name):
-            sql = "DELETE FROM student WHERE name = (%s)"
+            sql = "DELETE FROM students WHERE name = (%s)"
             val = [name]
             cursor.execute(sql, val)
 
